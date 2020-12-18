@@ -1,0 +1,6 @@
+CREATE EXTENSION debversion;
+SELECT deb_function(0);
+ERROR:  function deb_function(integer) does not exist
+LINE 1: SELECT deb_function(0);
+               ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
