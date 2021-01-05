@@ -2,7 +2,13 @@
 
 -- function for version comparison
 
-CREATE OR REPLACE FUNCTION deb_version_cmp_num(_left text, _right text) RETURNS integer AS $$
+--compare two numbers
+CREATE OR REPLACE FUNCTION deb_version_cmp_num(_left text, _right text) 
+RETURNS integer 
+--return -1 if left > right
+--return 0 if left = right
+--return 1 if left < right
+AS $$
 DECLARE
   lint integer := 0;
   rint integer := 0;
@@ -37,39 +43,51 @@ BEGIN
 END;
 $$ IMMUTABLE STRICT LANGUAGE plpgsql;
 
+--compare two strings without digits
 CREATE OR REPLACE FUNCTION deb_version_cmp_al(_left text, _right text)
 RETURNS integer
+--return -1 if left > right
+--return 0 if left = right
+--return 1 if left < right
 AS $$
 DECLARE
   lpair text ARRAY[2];
   rpair text ARRAY[2];
 BEGIN
+  --go through the string character by character and compare
   lpair := ARRAY['', _left];
   rpair := ARRAY['', _right];
 
   LOOP
+  --for each character do:
     IF lpair[2] = '' AND rpair[2] = '' THEN
+      --both strings are equal and remaining characters are empty
       return 0;
     END IF;
-
+    
+    --get the next character
     lpair := regexp_matches(lpair[2], '(.?)(.*)');
     rpair := regexp_matches(rpair[2], '(.?)(.*)');
 
     IF lpair[1] = rpair[1] THEN
+      --characters are equal, continue with next character
       CONTINUE;
     END IF;
+    --tilde comes before any other character and befor the empty string
     IF lpair[1] = '~' THEN
       RETURN -1;
     END IF;
     IF rpair[1] = '~' THEN
       RETURN 1;
     END IF;
+    --next check for empty string
     IF lpair[1] = '' THEN
       RETURN -1;
     END IF;
     IF rpair[1] = '' THEN
       RETURN 1;
     END IF;
+    --else order by ascii value of character
     IF lpair[1] SIMILAR TO '[a-zA-Z]' THEN
       IF rpair[1] SIMILAR TO '[a-zA-Z]' AND ascii(lpair[1]) > ascii(rpair[1]) THEN
         RETURN 1;
@@ -89,6 +107,9 @@ $$ IMMUTABLE STRICT LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION deb_version_cmp(_left text, _right text)
 RETURNS integer
+--return -1 if left > right
+--return 0 if left = right
+--return 1 if left < right
 AS $$
 DECLARE
   lepochver text ARRAY[2];
@@ -105,6 +126,7 @@ BEGIN
   repochver := regexp_matches(_right, '(?:([0-9]*):)?(.*)');
   repochver[1] := coalesce(repochver[1], '');
   
+  --compare epoch
   res := deb_version_cmp_num(lepochver[1], repochver[1]);
   IF res != 0 THEN
     RETURN res;
@@ -116,6 +138,7 @@ BEGIN
   rverrev := regexp_matches(repochver[2], '(.*?)(?:-([a-zA-Z0-9\+\.~]*))?$');
   rverrev[2] := coalesce(rverrev[2], '');
   
+  --split of digits and non-digits part
   lpair[1] := '';
   rpair[1] := '';
   lpair[2] := lverrev[1];
@@ -128,40 +151,49 @@ BEGIN
       lpair[2] := lverrev[2];
       rpair[2] := rverrev[2];
       LOOP
+        --if ssame revision, return 0
         IF lpair[2] = '' AND rpair[2] = '' THEN
           return 0;
         END IF;
-
-        lpair := regexp_matches(lpair[2], '([^0-9]*)(.*)');
-        rpair := regexp_matches(rpair[2], '([^0-9]*)(.*)');
-
-        res := deb_version_cmp_al(lpair[1], rpair[1]);
-        IF res != 0 THEN
-          RETURN res;
-        END IF;
-
+        
+	--cut off digit part starting from beginning and rest
         lpair := regexp_matches(lpair[2], '([0-9]*)(.*)');
         rpair := regexp_matches(rpair[2], '([0-9]*)(.*)');
 
+	--compare digit part
         res := deb_version_cmp_num(lpair[1], rpair[1]);
+        IF res != 0 THEN
+          RETURN res;
+        END IF;
+	
+	--cut off into largest non-digit part starting from beginning and rest
+        lpair := regexp_matches(lpair[2], '([^0-9]*)(.*)');
+        rpair := regexp_matches(rpair[2], '([^0-9]*)(.*)');
+        
+	--compare non-digit part
+        res := deb_version_cmp_al(lpair[1], rpair[1]);
         IF res != 0 THEN
           RETURN res;
         END IF;
       END LOOP;
     END IF;
 
-    lpair := regexp_matches(lpair[2], '([^0-9]*)(.*)');
-    rpair := regexp_matches(rpair[2], '([^0-9]*)(.*)');
+    --cut off digit part starting from beginning and rest
+    lpair := regexp_matches(lpair[2], '([0-9]*)(.*)');
+    rpair := regexp_matches(rpair[2], '([0-9]*)(.*)');
 
-    res := deb_version_cmp_al(lpair[1], rpair[1]);
+    --compare digit part
+    res := deb_version_cmp_num(lpair[1], rpair[1]);
     IF res != 0 THEN
       RETURN res;
     END IF;
 
-    lpair := regexp_matches(lpair[2], '([0-9]*)(.*)');
-    rpair := regexp_matches(rpair[2], '([0-9]*)(.*)');
+    --cut off into largest non-digit part starting from beginning and rest
+    lpair := regexp_matches(lpair[2], '([^0-9]*)(.*)');
+    rpair := regexp_matches(rpair[2], '([^0-9]*)(.*)');
 
-    res := deb_version_cmp_num(lpair[1], rpair[1]);
+    --compare non-digit part
+    res := deb_version_cmp_al(lpair[1], rpair[1]);
     IF res != 0 THEN
       RETURN res;
     END IF;
@@ -170,6 +202,7 @@ END
 $$ IMMUTABLE STRICT LANGUAGE plpgsql;
 
 -- new data type debversion
+--debversion is a subtype from "text"
 
 CREATE TYPE debversion;
 

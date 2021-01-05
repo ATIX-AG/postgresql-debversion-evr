@@ -1,6 +1,6 @@
 EXTENSION = debversion        # the extensions name
 DATA = debversion--0.0.1.sql  # script files to install
-REGRESS = debversion_test     # our test script file (without extension)
+REGRESS = debversion_test test_case_from_dpkg    # our test script file (without extension)
 
 
 # postgres build stuff

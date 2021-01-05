@@ -1,6 +1,172 @@
 CREATE EXTENSION debversion;
-SELECT deb_function(0);
-ERROR:  function deb_function(integer) does not exist
-LINE 1: SELECT deb_function(0);
-               ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+--equal versions
+SELECT '1:2.3-bla-1'::debversion = '1:2.3-bla-1'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion != '1:2.3-bla-1'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion <= '1:2.3-bla-1'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion >= '1:2.3-bla-1'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion < '1:2.3-bla-1'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion > '1:2.3-bla-1'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+-- different epoch
+SELECT '1:2.3-bla-1'::debversion = '2.3-bla-1'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion != '2.3-bla-1'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion <= '2.3-bla-1'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion >= '2.3-bla-1'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion < '2.3-bla-1'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion > '2.3-bla-1'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+-- different revision
+SELECT '1:2.3-bla-1'::debversion = '1:2.3-bla-2'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion != '1:2.3-bla-2'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion <= '1:2.3-bla-2'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion >= '1:2.3-bla-2'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion < '1:2.3-bla-2'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion > '1:2.3-bla-2'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+--different versions
+SELECT '1:2.3-bla-1'::debversion = '1:2.3-blaa-1'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion != '1:2.3-blaa-1'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion <= '1:2.3-blaa-1'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion >= '1:2.3-blaa-1'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion < '1:2.3-blaa-1'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '1:2.3-bla-1'::debversion > '1:2.3-blaa-1'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+--real world examples
+SELECT '1.60-26+b1'::debversion < '1.60+git20161116.90da8a0-1'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+--non-valid versions (but dpkg can handle these with warning message)
+SELECT '1:bla-1'::debversion < '1:2.3-bla-1'::debversion;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '1:bla-1'::debversion > '1:2.3-bla-1'::debversion;
+ ?column? 
+----------
+ t
+(1 row)
+
+--these throw errors in dpkg (dpkg cannot handle them)
+--SELECT '1:2.3-bla-1'::debversion < '1:2.3-bla-'::debversion;
+--SELECT '1:2.3-bla-1'::debversion > '1:2.3-bla-'::debversion;
