@@ -24,6 +24,8 @@ for line in fin:
     if line == '\n':
         continue
     output.write(line)
+    if line.startswith("SELECT '1:bla-1'::debversion"):
+    	output.write("WARNING:  version 1:bla-1 has bad syntax: version number does not start with digit\n")
     if line.startswith("SELECT"):
         mask = re.compile(r"SELECT '([0-9a-zA-Z\+\-\.\:\~]+)'::debversion ([\>\<\=\!]+) '([0-9a-zA-Z\+\-\.\:\~]+)'::debversion;")
         match = mask.match(line)

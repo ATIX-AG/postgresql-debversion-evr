@@ -39,6 +39,9 @@ SELECT '1.60-26+b1'::debversion < '1.60+git20161116.90da8a0-1'::debversion;
 SELECT '1:bla-1'::debversion < '1:2.3-bla-1'::debversion;
 SELECT '1:bla-1'::debversion > '1:2.3-bla-1'::debversion;
 
+SELECT '1:2.3-bla-a'::debversion < '1:2.3-bla-1'::debversion;
+SELECT '1:2.3-bla-a'::debversion > '1:2.3-bla-1'::debversion;
+
 --these throw errors in dpkg (dpkg cannot handle them)
 --SELECT '1:2.3-bla-1'::debversion < '1:2.3-bla-'::debversion;
 --SELECT '1:2.3-bla-1'::debversion > '1:2.3-bla-'::debversion;
