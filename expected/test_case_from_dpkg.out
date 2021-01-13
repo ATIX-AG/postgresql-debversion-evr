@@ -1,4 +1,3 @@
-CREATE EXTENSION debversion;
 SELECT '1.0-1'::debversion < '2.0-2'::debversion;
  ?column? 
 ----------

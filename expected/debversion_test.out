@@ -156,12 +156,16 @@ SELECT '1.60-26+b1'::debversion < '1.60+git20161116.90da8a0-1'::debversion;
 
 --non-valid versions (but dpkg can handle these with warning message)
 SELECT '1:bla-1'::debversion < '1:2.3-bla-1'::debversion;
+WARNING:  version 1:bla-1 has bad syntax: version number does not start with digit
+
  ?column? 
 ----------
  f
 (1 row)
 
 SELECT '1:bla-1'::debversion > '1:2.3-bla-1'::debversion;
+WARNING:  version 1:bla-1 has bad syntax: version number does not start with digit
+
  ?column? 
 ----------
  t

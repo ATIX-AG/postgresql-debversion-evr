@@ -10,36 +10,24 @@ RETURNS integer
 --return 1 if left < right
 AS $$
 DECLARE
-  lint integer := 0;
-  rint integer := 0;
-  leftlen integer;
-  rightlen integer;
-  i integer := 0;
-  MAXLEN CONSTANT integer := 7;
+  lint integer;
+  rint integer;
 BEGIN
-  leftlen := char_length(_left);
-  rightlen := char_length(_right);
-  IF leftlen < rightlen THEN
-    RETURN -1;
-  ELSEIF leftlen > rightlen THEN
-    RETURN 1;
-  ELSE
-    WHILE (i * MAXLEN) < leftlen LOOP
-      IF _left != '' THEN
-        lint := substring(_left from (i * MAXLEN) for MAXLEN) AS integer;
-      END IF;
-      IF _right != '' THEN
-        rint := substring(_right from (i * MAXLEN) for MAXLEN) AS integer;
-      END IF;
-      IF lint < rint THEN
-        RETURN -1;
-      ELSEIF lint > rint THEN
-        RETURN 1;
-      END IF;
-      i := i + 1;
-    END LOOP;
+  IF _left = '' THEN
+    _left = '0';
   END IF;
-  RETURN 0;
+  IF _right = '' THEN
+    _right = '0';
+  END IF;
+  lint := CAST (_left AS integer);
+  rint := CAST (_right AS integer);
+  IF lint < rint THEN
+    RETURN -1;
+  ELSIF lint > rint THEN
+    RETURN 1;
+  ELSE 
+    RETURN 0;
+  END IF;
 END;
 $$ IMMUTABLE STRICT LANGUAGE plpgsql;
 
@@ -65,7 +53,7 @@ BEGIN
       return 0;
     END IF;
     
-    --get the next character
+    --get the next character into l/rpair[1]
     lpair := regexp_matches(lpair[2], '(.?)(.*)');
     rpair := regexp_matches(rpair[2], '(.?)(.*)');
 
@@ -122,9 +110,9 @@ DECLARE
 BEGIN
   --split in epoch and version+revision
   lepochver := regexp_matches(_left, '(?:([0-9]*):)?(.*)');
-  lepochver[1] := coalesce(lepochver[1], '');
+  lepochver[1] := coalesce(lepochver[1], '0');
   repochver := regexp_matches(_right, '(?:([0-9]*):)?(.*)');
-  repochver[1] := coalesce(repochver[1], '');
+  repochver[1] := coalesce(repochver[1], '0');
   
   --compare epoch
   res := deb_version_cmp_num(lepochver[1], repochver[1]);
@@ -181,6 +169,17 @@ BEGIN
     --cut off digit part starting from beginning and rest
     lpair := regexp_matches(lpair[2], '([0-9]*)(.*)');
     rpair := regexp_matches(rpair[2], '([0-9]*)(.*)');
+    
+    IF lpair[1] = '' THEN
+      RAISE WARNING 'version % has bad syntax: version number does not start with digit
+', _left;
+      return 1;
+    END IF;
+    IF rpair[1] = '' THEN
+      RAISE WARNING 'version % has bad syntax: version number does not start with digit
+', _right;
+      return -1;
+    END IF;
 
     --compare digit part
     res := deb_version_cmp_num(lpair[1], rpair[1]);

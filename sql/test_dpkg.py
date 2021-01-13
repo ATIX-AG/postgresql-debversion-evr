@@ -7,7 +7,6 @@ with open("../sql/test_dpkg") as f:
     fin = f.readlines()
 
 output = open("test_case_from_dpkg.sql", "wt")
-output.write("CREATE EXTENSION debversion;\n")
 for line in fin:
     if line == '\n':
         continue
