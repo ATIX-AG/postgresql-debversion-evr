@@ -10,8 +10,8 @@ RETURNS integer
 --return 1 if left < right
 AS $$
 DECLARE
-  lint integer;
-  rint integer;
+  lint numeric;
+  rint numeric;
 BEGIN
   --'0' and '' are compared as equal in the dpkg implementation
   IF _left = '' THEN
@@ -20,8 +20,8 @@ BEGIN
   IF _right = '' THEN
     _right = '0';
   END IF;
-  lint := CAST (_left AS integer);
-  rint := CAST (_right AS integer);
+  lint := CAST (_left AS numeric);
+  rint := CAST (_right AS numeric);
   IF lint < rint THEN
     RETURN -1;
   ELSIF lint > rint THEN

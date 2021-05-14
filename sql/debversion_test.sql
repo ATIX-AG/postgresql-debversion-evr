@@ -46,3 +46,6 @@ SELECT '1:2.3-bla-a'::debversion > '1:2.3-bla-1'::debversion;
 --SELECT '1:2.3-bla-1'::debversion < '1:2.3-bla-'::debversion;
 --SELECT '1:2.3-bla-1'::debversion > '1:2.3-bla-'::debversion;
 
+--long numeric values in version
+SELECT '1.0.20181217162649+dfsg-10'::debversion != '1.0.20181217162649+dfsg-10'::debversion;
+SELECT '1.0.20181217162649+dfsg-10'::debversion = '1.0.20181217162649+dfsg-10'::debversion;
