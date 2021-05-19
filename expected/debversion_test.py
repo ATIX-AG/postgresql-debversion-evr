@@ -11,26 +11,15 @@ FILES=[ 'debversion_test', 'test_case_from_dpkg', 'brute-force-test' ]
 
 apt_pkg.init_system()
 
-def compare_lib(version1, version2, op):
+def compare_lib(version1, version2):
     res = apt_pkg.version_compare(version1, version2)
 
-    if (res < 0):
-        if (op == '<' or op == '<=' or op == '!='):
-            return 't'
-        else:
-            return 'f'
-    elif (res == 0):
-        if (op == '<=' or op == '>=' or op == '='):
-            return 't'
-        else:
-            return 'f'
-    elif (res > 0):
-        if (op == '>' or op == '>=' or op == '!='):
-            return 't'
-        else:
-            return 'f'
+    if (res > 0):
+        return 1;
+    elif (res < 0):
+        return -1;
     else:
-        raise "Unsupported combination ver1=%s ver2=%s operator=%s" % (version1, version2, op)
+        return 0;
 
 def compare_cmd(version1, version2, op):
     dictionary = {"<":"lt", ">":"gt", "<=":"le", ">=":"ge", "=":"eq", "!=":"ne"}
@@ -43,13 +32,12 @@ def compare_cmd(version1, version2, op):
         return 'f'
 
 def create_output(line):
-    mask = re.compile(r"SELECT '([0-9a-zA-Z\+\-\.\:\~]+)'::debversion_evr ([\>\<\=\!]+) '([0-9a-zA-Z\+\-\.\:\~]+)'::debversion_evr;")
+    mask = re.compile(r"SELECT deb_version_cmp\('([0-9a-zA-Z\+\-\.\:\~]+)', '([0-9a-zA-Z\+\-\.\:\~]+)'\);")
     match = mask.match(line)
     version1 = match.group(1)
-    op = match.group(2)
-    version2 = match.group(3)
-    letter = compare(version1, version2, op)
-    return f" ?column? \n----------\n {letter}\n(1 row)\n\n"
+    version2 = match.group(2)
+    letter = compare(version1, version2)
+    return f" deb_version_cmp \n-----------------\n              {str(letter).rjust(2)}\n(1 row)\n\n"
 
 # CHANGEME to use apt-pkg library or dpkg command for comparing
 compare = compare_lib
@@ -63,7 +51,7 @@ for filename in FILES:
                 if line == '\n':
                     continue
                 output.write(line)
-                if line.startswith("SELECT '1:bla-1'::debversion_evr"):
+                if line.startswith("SELECT deb_version_cmp('1:bla-1'"):
                   output.write("WARNING:  version 1:bla-1 has bad syntax: version number does not start with digit\n")
                 if line.startswith("SELECT"):
                     output.write(create_output(line))

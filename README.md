@@ -1,29 +1,22 @@
 postgresql-debversion
 ====================
 
-This extension to postgreSQL implements a new data type for versions of debian packages and the comparison of debian package versions in PL/pgSQL.
+This extension to postgreSQL implements a new function for the comparison of debian package versions in PL/pgSQL.
 
 About
 ---------
 Debian version numbers, used to version Debian binary and source
 packages, have a defined format, including specifications for how
 versions should be compared in order to sort them.  This package
-implements a `debversion` type to represent Debian version numbers
-within the PostgreSQL database.  This also includes operators for
-version comparison and index operator classes for creating indexes on
-the debversion type.
+implements a `deb_version_cmp` function for version comparison.
 
 Version comparison uses the algorithm used by the Debian package
 manager, dpkg, using the implementation from libapt-pkg.  This means
-that columns in tables using the debversion type may be sorted and
-compared correctly using the same logic as `dpkg --compare-versions`.
-It is also possible to create indexes on these columns.
+that value comparing uses the same logic as `dpkg --compare-versions`.
 
-postgresql-debversion implements the following features:
+postgresql-debversion-evr implements the following features:
 
-* The `debversion` type (internally derived from the `text` type)
-* A full set of operators for version comparison (< <= = != >= >)
-  including commutator and negator optimisation hints
+* The `deb_version_cmp` function (comparing two `text` values)
 
 
 How to
@@ -33,8 +26,8 @@ How to install the extension:
 
 - download the extension
 - go to folder containing the extension and run `make install`
-- inside the postgres database run `CREATE EXTENSION debversion;`
-- to uninstall extension from postgres run `DROP EXTENSION debversion;` in database
+- inside the postgres database run `CREATE EXTENSION debversion_evr;`
+- to uninstall extension from postgres run `DROP EXTENSION debversion_evr;` in database
 
 How to run tests:
 
@@ -42,9 +35,9 @@ How to run tests:
 
 - add test statements as `SELECT` commands, eg 
 
-  `SELECT '1.60-26+b1'::debversion < '1.60+git20161116.90da8a0-1'::debversion;`
+  `SELECT deb_version_cmp('1.60-26+b1', '1.60+git20161116.90da8a0-1');`
 
-- go to folder `expected/`and run `python3 debversion_test.py` (this generates the output file `debversion_test.out` using the `dpkg --compare-versions` command in bash)
+- go to folder `expected/`and run `python3 debversion_test.py` (this generates the output file `debversion_test.out` using the `dpkg --compare-versions` command in bash or libapt-pkg python-library)
 
 - in main directory run `make installcheck`
 

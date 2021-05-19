@@ -11,11 +11,6 @@ with open("test_dpkg") as f:
         data = line.split()
         version1 = data[0]
         version2 = data[1]
-        text = f"SELECT '{version1}'::debversion_evr < '{version2}'::debversion_evr;\n"
-        output.write(text)
-        text = f"SELECT '{version1}'::debversion_evr > '{version2}'::debversion_evr;\n"
-        output.write(text)
-        text = f"SELECT '{version1}'::debversion_evr = '{version2}'::debversion_evr;\n"
-        output.write(text)
+        output.write(f"SELECT deb_version_cmp('{version1}', '{version2}');\n")
 
     output.close()
