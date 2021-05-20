@@ -1,4 +1,4 @@
-\echo Use "CREATE EXTENSION debversion" to load this file. \quit
+\echo Use "CREATE EXTENSION debversion_evr" to load this file. \quit
 
 -- function for version comparison
 
@@ -201,36 +201,36 @@ BEGIN
 END
 $$ IMMUTABLE STRICT LANGUAGE plpgsql;
 
--- new data type debversion
---debversion is a subtype from "text"
+-- new data type debversion_evr
+--debversion_evr is a subtype from "text"
 
-CREATE TYPE debversion;
+CREATE TYPE debversion_evr;
 
 CREATE OR REPLACE FUNCTION debversionin(cstring)
-  RETURNS debversion
+  RETURNS debversion_evr
   AS 'textin'
   LANGUAGE internal
   IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION debversionout(debversion)
+CREATE OR REPLACE FUNCTION debversionout(debversion_evr)
   RETURNS cstring
   AS 'textout'
   LANGUAGE internal
   IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION debversionrecv(internal)
-  RETURNS debversion
+  RETURNS debversion_evr
   AS 'textrecv'
   LANGUAGE internal
   STABLE STRICT;
 
-CREATE OR REPLACE FUNCTION debversionsend(debversion)
+CREATE OR REPLACE FUNCTION debversionsend(debversion_evr)
   RETURNS bytea
   AS 'textsend'
   LANGUAGE internal
   STABLE STRICT;
 
-CREATE TYPE debversion (
+CREATE TYPE debversion_evr (
     LIKE           = text,
     INPUT          = debversionin,
     OUTPUT         = debversionout,
@@ -241,24 +241,24 @@ CREATE TYPE debversion (
     PREFERRED      = false
 );
 
-COMMENT ON TYPE debversion IS 'Debian package version number';
+COMMENT ON TYPE debversion_evr IS 'Debian package version number';
 
-CREATE OR REPLACE FUNCTION debversion(bpchar)
-  RETURNS debversion
+CREATE OR REPLACE FUNCTION debversion_evr(bpchar)
+  RETURNS debversion_evr
   AS 'rtrim1'
   LANGUAGE internal
   IMMUTABLE STRICT;
 
-CREATE CAST (debversion AS text)    WITHOUT FUNCTION AS IMPLICIT;
-CREATE CAST (debversion AS varchar) WITHOUT FUNCTION AS IMPLICIT;
-CREATE CAST (debversion AS bpchar)  WITHOUT FUNCTION AS ASSIGNMENT;
-CREATE CAST (text AS debversion)    WITHOUT FUNCTION AS ASSIGNMENT;
-CREATE CAST (varchar AS debversion) WITHOUT FUNCTION AS ASSIGNMENT;
-CREATE CAST (bpchar AS debversion)  WITH FUNCTION debversion(bpchar);
+CREATE CAST (debversion_evr AS text)    WITHOUT FUNCTION AS IMPLICIT;
+CREATE CAST (debversion_evr AS varchar) WITHOUT FUNCTION AS IMPLICIT;
+CREATE CAST (debversion_evr AS bpchar)  WITHOUT FUNCTION AS ASSIGNMENT;
+CREATE CAST (text AS debversion_evr)    WITHOUT FUNCTION AS ASSIGNMENT;
+CREATE CAST (varchar AS debversion_evr) WITHOUT FUNCTION AS ASSIGNMENT;
+CREATE CAST (bpchar AS debversion_evr)  WITH FUNCTION debversion_evr(bpchar);
 
--- how to compare the new data type debversion via version compare function
+-- how to compare the new data type debversion_evr via version compare function
 
-CREATE OR REPLACE FUNCTION debversion_cmp (version1 debversion, version2 debversion)
+CREATE OR REPLACE FUNCTION debversion_cmp (version1 debversion_evr, version2 debversion_evr)
   RETURNS integer
   AS $$
   DECLARE ret integer;
@@ -269,10 +269,10 @@ CREATE OR REPLACE FUNCTION debversion_cmp (version1 debversion, version2 debvers
   $$
   LANGUAGE plpgsql
   IMMUTABLE STRICT;
-COMMENT ON FUNCTION debversion_cmp (debversion, debversion)
+COMMENT ON FUNCTION debversion_cmp (debversion_evr, debversion_evr)
   IS 'Compare Debian versions';
 
-CREATE OR REPLACE FUNCTION debversion_eq (version1 debversion, version2 debversion)
+CREATE OR REPLACE FUNCTION debversion_evr_eq (version1 debversion_evr, version2 debversion_evr)
   RETURNS boolean 
   AS $$
   DECLARE 
@@ -289,10 +289,10 @@ CREATE OR REPLACE FUNCTION debversion_eq (version1 debversion, version2 debversi
   $$
   LANGUAGE plpgsql
   IMMUTABLE STRICT;
-COMMENT ON FUNCTION debversion_eq (debversion, debversion)
-  IS 'debversion equal';
+COMMENT ON FUNCTION debversion_evr_eq (debversion_evr, debversion_evr)
+  IS 'debversion_evr equal';
 
-CREATE OR REPLACE FUNCTION debversion_ne (version1 debversion, version2 debversion)
+CREATE OR REPLACE FUNCTION debversion_evr_ne (version1 debversion_evr, version2 debversion_evr)
   RETURNS boolean 
   AS $$
   DECLARE 
@@ -309,10 +309,10 @@ CREATE OR REPLACE FUNCTION debversion_ne (version1 debversion, version2 debversi
   $$
   LANGUAGE plpgsql
   IMMUTABLE STRICT;
-COMMENT ON FUNCTION debversion_ne (debversion, debversion)
-  IS 'debversion not equal';
+COMMENT ON FUNCTION debversion_evr_ne (debversion_evr, debversion_evr)
+  IS 'debversion_evr not equal';
 
-CREATE OR REPLACE FUNCTION debversion_lt (version1 debversion, version2 debversion)
+CREATE OR REPLACE FUNCTION debversion_evr_lt (version1 debversion_evr, version2 debversion_evr)
   RETURNS boolean 
   AS $$
   DECLARE 
@@ -329,10 +329,10 @@ CREATE OR REPLACE FUNCTION debversion_lt (version1 debversion, version2 debversi
   $$
   LANGUAGE plpgsql
   IMMUTABLE STRICT;
-COMMENT ON FUNCTION debversion_lt (debversion, debversion)
-  IS 'debversion less-than';
+COMMENT ON FUNCTION debversion_evr_lt (debversion_evr, debversion_evr)
+  IS 'debversion_evr less-than';
 
-CREATE OR REPLACE FUNCTION debversion_gt (version1 debversion, version2 debversion)
+CREATE OR REPLACE FUNCTION debversion_evr_gt (version1 debversion_evr, version2 debversion_evr)
   RETURNS boolean 
   AS $$
   DECLARE 
@@ -349,10 +349,10 @@ CREATE OR REPLACE FUNCTION debversion_gt (version1 debversion, version2 debversi
   $$
   LANGUAGE plpgsql
   IMMUTABLE STRICT;
-COMMENT ON FUNCTION debversion_gt (debversion, debversion)
-  IS 'debversion greater-than';
+COMMENT ON FUNCTION debversion_evr_gt (debversion_evr, debversion_evr)
+  IS 'debversion_evr greater-than';
 
-CREATE OR REPLACE FUNCTION debversion_le (version1 debversion, version2 debversion)
+CREATE OR REPLACE FUNCTION debversion_evr_le (version1 debversion_evr, version2 debversion_evr)
   RETURNS boolean 
   AS $$
   DECLARE 
@@ -370,10 +370,10 @@ CREATE OR REPLACE FUNCTION debversion_le (version1 debversion, version2 debversi
   $$
   LANGUAGE plpgsql
   IMMUTABLE STRICT;
-COMMENT ON FUNCTION debversion_le (debversion, debversion)
-  IS 'debversion less-than-or-equal';
+COMMENT ON FUNCTION debversion_evr_le (debversion_evr, debversion_evr)
+  IS 'debversion_evr less-than-or-equal';
 
-CREATE OR REPLACE FUNCTION debversion_ge (version1 debversion, version2 debversion)
+CREATE OR REPLACE FUNCTION debversion_evr_ge (version1 debversion_evr, version2 debversion_evr)
   RETURNS boolean 
   AS $$
   DECLARE 
@@ -391,89 +391,89 @@ CREATE OR REPLACE FUNCTION debversion_ge (version1 debversion, version2 debversi
   $$
   LANGUAGE plpgsql
   IMMUTABLE STRICT;
-COMMENT ON FUNCTION debversion_ge (debversion, debversion)
-  IS 'debversion greater-than-or-equal';
+COMMENT ON FUNCTION debversion_evr_ge (debversion_evr, debversion_evr)
+  IS 'debversion_evr greater-than-or-equal';
 
 -- define operators for comparison
 
 CREATE OPERATOR = (
-  PROCEDURE = debversion_eq,
-  LEFTARG = debversion,
-  RIGHTARG = debversion,
+  PROCEDURE = debversion_evr_eq,
+  LEFTARG = debversion_evr,
+  RIGHTARG = debversion_evr,
   COMMUTATOR = =,
   NEGATOR = !=,
   RESTRICT = eqsel,
   JOIN = eqjoinsel
 );
-COMMENT ON OPERATOR = (debversion, debversion)
-  IS 'debversion equal';
+COMMENT ON OPERATOR = (debversion_evr, debversion_evr)
+  IS 'debversion_evr equal';
 
 CREATE OPERATOR != (
-  PROCEDURE = debversion_ne,
-  LEFTARG = debversion,
-  RIGHTARG = debversion,
+  PROCEDURE = debversion_evr_ne,
+  LEFTARG = debversion_evr,
+  RIGHTARG = debversion_evr,
   COMMUTATOR = !=,
   NEGATOR = =,
   RESTRICT = neqsel,
   JOIN = neqjoinsel
 );
-COMMENT ON OPERATOR != (debversion, debversion)
-  IS 'debversion not equal';
+COMMENT ON OPERATOR != (debversion_evr, debversion_evr)
+  IS 'debversion_evr not equal';
 
 CREATE OPERATOR < (
-  PROCEDURE = debversion_lt,
-  LEFTARG = debversion,
-  RIGHTARG = debversion,
+  PROCEDURE = debversion_evr_lt,
+  LEFTARG = debversion_evr,
+  RIGHTARG = debversion_evr,
   COMMUTATOR = >,
   NEGATOR = >=,
   RESTRICT = scalarltsel,
   JOIN = scalarltjoinsel
 );
-COMMENT ON OPERATOR < (debversion, debversion)
-  IS 'debversion less-than';
+COMMENT ON OPERATOR < (debversion_evr, debversion_evr)
+  IS 'debversion_evr less-than';
 
 CREATE OPERATOR > (
-  PROCEDURE = debversion_gt,
-  LEFTARG = debversion,
-  RIGHTARG = debversion,
+  PROCEDURE = debversion_evr_gt,
+  LEFTARG = debversion_evr,
+  RIGHTARG = debversion_evr,
   COMMUTATOR = <,
   NEGATOR = >=,
   RESTRICT = scalargtsel,
   JOIN = scalargtjoinsel
 );
-COMMENT ON OPERATOR > (debversion, debversion)
-  IS 'debversion greater-than';
+COMMENT ON OPERATOR > (debversion_evr, debversion_evr)
+  IS 'debversion_evr greater-than';
 
 CREATE OPERATOR <= (
-  PROCEDURE = debversion_le,
-  LEFTARG = debversion,
-  RIGHTARG = debversion,
+  PROCEDURE = debversion_evr_le,
+  LEFTARG = debversion_evr,
+  RIGHTARG = debversion_evr,
   COMMUTATOR = >=,
   NEGATOR = >,
   RESTRICT = scalarltsel,
   JOIN = scalarltjoinsel
 );
-COMMENT ON OPERATOR <= (debversion, debversion)
-  IS 'debversion less-than-or-equal';
+COMMENT ON OPERATOR <= (debversion_evr, debversion_evr)
+  IS 'debversion_evr less-than-or-equal';
 
 CREATE OPERATOR >= (
-  PROCEDURE = debversion_ge,
-  LEFTARG = debversion,
-  RIGHTARG = debversion,
+  PROCEDURE = debversion_evr_ge,
+  LEFTARG = debversion_evr,
+  RIGHTARG = debversion_evr,
   COMMUTATOR = <=,
   NEGATOR = <,
   RESTRICT = scalargtsel,
   JOIN = scalargtjoinsel
 );
-COMMENT ON OPERATOR >= (debversion, debversion)
-  IS 'debversion greater-than-or-equal';
+COMMENT ON OPERATOR >= (debversion_evr, debversion_evr)
+  IS 'debversion_evr greater-than-or-equal';
 
-CREATE OPERATOR CLASS debversion_ops
-DEFAULT FOR TYPE debversion USING btree AS
-  OPERATOR 1 <  (debversion, debversion),
-  OPERATOR 2 <= (debversion, debversion),
-  OPERATOR 3 =  (debversion, debversion),
-  OPERATOR 4 >= (debversion, debversion),
-  OPERATOR 5 >  (debversion, debversion),
-  FUNCTION 1 debversion_cmp(debversion, debversion);
+CREATE OPERATOR CLASS debversion_evr_ops
+DEFAULT FOR TYPE debversion_evr USING btree AS
+  OPERATOR 1 <  (debversion_evr, debversion_evr),
+  OPERATOR 2 <= (debversion_evr, debversion_evr),
+  OPERATOR 3 =  (debversion_evr, debversion_evr),
+  OPERATOR 4 >= (debversion_evr, debversion_evr),
+  OPERATOR 5 >  (debversion_evr, debversion_evr),
+  FUNCTION 1 debversion_cmp(debversion_evr, debversion_evr);
 

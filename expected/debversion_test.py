@@ -43,7 +43,7 @@ def compare_cmd(version1, version2, op):
         return 'f'
 
 def create_output(line):
-    mask = re.compile(r"SELECT '([0-9a-zA-Z\+\-\.\:\~]+)'::debversion ([\>\<\=\!]+) '([0-9a-zA-Z\+\-\.\:\~]+)'::debversion;")
+    mask = re.compile(r"SELECT '([0-9a-zA-Z\+\-\.\:\~]+)'::debversion_evr ([\>\<\=\!]+) '([0-9a-zA-Z\+\-\.\:\~]+)'::debversion_evr;")
     match = mask.match(line)
     version1 = match.group(1)
     op = match.group(2)
@@ -63,7 +63,7 @@ for filename in FILES:
                 if line == '\n':
                     continue
                 output.write(line)
-                if line.startswith("SELECT '1:bla-1'::debversion"):
+                if line.startswith("SELECT '1:bla-1'::debversion_evr"):
                   output.write("WARNING:  version 1:bla-1 has bad syntax: version number does not start with digit\n")
                 if line.startswith("SELECT"):
                     output.write(create_output(line))
