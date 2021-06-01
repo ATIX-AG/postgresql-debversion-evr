@@ -1,5 +1,5 @@
-postgresql-debversion
-====================
+postgresql-debversion-evr
+=========================
 
 This extension to postgreSQL implements a new function for the comparison of debian package versions in PL/pgSQL.
 
